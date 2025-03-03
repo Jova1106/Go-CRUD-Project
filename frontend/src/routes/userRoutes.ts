@@ -1,4 +1,3 @@
-// src/routes/userRoutes.ts
 import express from 'express';
 import {postData, putData, getData, deleteData} from '../controllers/userController';
 
