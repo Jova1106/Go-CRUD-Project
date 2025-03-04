@@ -31,6 +31,7 @@ func update(users []User, userToPut User) []User {
 	}
 
 	users = append(users, userToPut)
+
 	return users
 }
 
@@ -99,9 +100,8 @@ func PostDataHandler(userToPost User) error {
 	}
 
 	os.Remove(DATA_FILE)
-	err = os.WriteFile(DATA_FILE, fileContent, 0644)
 
-	if err != nil {
+	if err = os.WriteFile(DATA_FILE, fileContent, 0644); err != nil {
 		return err
 	}
 
@@ -117,9 +117,8 @@ func PostDataHandler(userToPost User) error {
 	}
 
 	os.Remove(DATA_FILE_SEQUENTIAL)
-	err = os.WriteFile(DATA_FILE_SEQUENTIAL, fileContentSequential, 0644)
 
-	if err != nil {
+	if err = os.WriteFile(DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
 		return err
 	}
 
@@ -155,7 +154,6 @@ func PutDataHandler(userToPut User) error {
 	}
 
 	newUserMap[userToPut.Id] = userToPut
-
 	fileContent, err := json.MarshalIndent(newUserMap, "", "  ")
 
 	if err != nil {
@@ -167,7 +165,6 @@ func PutDataHandler(userToPut User) error {
 	}
 
 	newUsers = update(newUsers, userToPut)
-
 	fileContentSequential, err := json.MarshalIndent(newUsers, "", "  ")
 
 	if err != nil {
@@ -220,7 +217,6 @@ func DeleteDataHandler(userToDelete User) error {
 	}
 
 	delete(newUserMap, userToDelete.Id)
-
 	fileContent, err := json.MarshalIndent(newUserMap, "", "  ")
 
 	if err != nil {
@@ -236,7 +232,6 @@ func DeleteDataHandler(userToDelete User) error {
 	}
 
 	newUsers = erase(newUsers, userToDelete)
-
 	fileContentSequential, err := json.MarshalIndent(newUsers, "", "  ")
 
 	if err != nil {
