@@ -10,6 +10,11 @@ import (
 const DATA_FILE = "../database/data.json"
 const DATA_FILE_SEQUENTIAL = "../database/dataSequential.json"
 
+// Loop through the sequential data array and
+// add all users that do not match the ID.
+// There is definitely a better way to 'remove'
+// something instead of doing it this way, but
+// it's good enough for now...!
 func erase(users []User, userToDelete User) []User {
 	newUserList := []User{}
 
@@ -22,6 +27,8 @@ func erase(users []User, userToDelete User) []User {
 	return newUserList
 }
 
+// Loop through the sequential data array
+// and update the user if a matching ID is found
 func update(users []User, userToPut User) []User {
 	for i, user := range users {
 		if user.Id == userToPut.Id {
@@ -35,49 +42,116 @@ func update(users []User, userToPut User) []User {
 	return users
 }
 
+// The default user data structure
 type User struct {
 	Id    string `json:id`
 	Name  string `json:name`
 	Email string `json:email`
 }
 
+// Return the smallest of 2 ints
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+
+	return b
+}
+
+// Return the largest of 2 ints
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
+}
+
+// Clamp a value between min and max
+func clamp(value int, minValue int, maxValue int) int {
+	return max(min(value, maxValue), minValue)
+}
+
+// Generate a random int between min and max, inclusive
+func randInt64Range(min int, max int) uint64 {
+	return uint64(min) + uint64(rand.Int63n(int64(max-min+1)))
+}
+
+// I originally wrote this function in Lua,
+// then translated it to GDScript to use in my games.
+// To my understanding, these numbers are universal,
+// so these ranges should still match the commented ranges.
 var alphanumericRanges = [][2]int{
 	{48, 57},  // 0 - 9
 	{65, 90},  // A - Z
 	{97, 122}, // a - z
 }
 
-func randomString() string {
+// This function repeats '_stringLength' times and generates
+// a random alpnanumeric character that many times.
+//
+// Since Go doesn't allow optional parameters,
+// I chose to use variadic args, and set a default
+// if there are no parameters provided.
+// Only the first parameter is evaluated, so
+// randomString(7, 8, 9) will return a random string
+// with 7 characters.
+func randomString(_stringLength ...int) string {
+	// If alphanumeric is false, certain special characters
+	// like [].!, will be allowed in the string.
+	var alphanumeric = true
+	var stringLength int
+	if len(_stringLength) == 0 {
+		stringLength = 64 // Default value
+	} else {
+		// Assign the passed value, after clamping it
+		stringLength = clamp(_stringLength[0], 0, 64)
+	}
 	currentFileContent, _ := os.ReadFile(DATA_FILE)
 	var newUserMap map[string]User
 
+	// Deserialize the json file that contains user IDs as keys.
+	// We're doing this so we can validate if a key exists.
 	if err := json.Unmarshal(currentFileContent, &newUserMap); err != nil {
 		return fmt.Sprintf("%v", err)
 	}
 
-	var alphanumeric = true
-	var length = 64
-	var ret string
-	var arr []rune
+	var returnString string
+	var tempStringArray []rune
 
 	if alphanumeric {
-		for i := 0; i < length; i++ {
-			randRange := alphanumericRanges[rand.Intn(3)]
-			arr = append(arr, rune(rand.Intn(randRange[1]-randRange[0]+1)+randRange[0]))
+		for i := 0; i < stringLength; i++ {
+			// Pick a number between 0-2 and select the set of characters
+			// from the 'alphanumericRanges' array.
+			characterRange := alphanumericRanges[rand.Intn(3)]
+			// Add the random character to the temporary array
+			tempStringArray = append(tempStringArray, rune(randInt64Range(characterRange[0], characterRange[1])))
 		}
 	} else {
-		for i := 0; i < length; i++ {
-			arr = append(arr, rune(rand.Intn(94)+33))
+		for i := 0; i < stringLength; i++ {
+			// Set the range to be between 32 and 126 in the ASCII table,
+			// Allowing special ASCII characters.
+			//
+			// 32 - 47	 : Space and basic punctuation characters, 	EXAMPLE: ! " # *
+			// 58 - 64	 : Additional punctuation and symbols, 		EXAMPLE: : ; < =
+			// 91 - 96	 : More punctuation and special symbols, 	EXAMPLE: [ ] \ ^
+			// 123 - 126 : Brackets, pipe, and tilde, 				EXAMPLE: { } | ~
+			//
+			// Since rand.Intn(94) returns 93 (n - 1),
+			// we need to add 33 to get 126.
+			tempStringArray = append(tempStringArray, rune(rand.Intn(94)+33))
 		}
 	}
 
-	ret = string(arr)
+	returnString = string(tempStringArray)
 
-	if _, exists := newUserMap[ret]; exists {
-		return randomString()
+	// If the ID already exists, recursively call this function until we don't have one.
+	// Assuming we have 64 characters, an ID conflict is... unlikely, to say the least.
+	if _, exists := newUserMap[returnString]; exists {
+		return randomString(stringLength)
 	}
 
-	return ret
+	return returnString
 }
 
 func PostDataHandler(userToPost User) error {
