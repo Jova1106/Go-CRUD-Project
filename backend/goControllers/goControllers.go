@@ -57,14 +57,14 @@ func PutData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
 	response := map[string]string{"message": "User updated successfully"}
 	jsonResponse, _ := json.Marshal(response)
 	w.Write(jsonResponse)
 
 	fmt.Println("User update successful!")
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func GetData(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 }
 
 func DeleteData(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +103,6 @@ func DeleteData(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "User deleted successfully"}`))
+	w.WriteHeader(http.StatusOK)
 }
