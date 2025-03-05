@@ -8,13 +8,38 @@ import (
 	"net/http"
 )
 
-func SetupUserRoutes(router *mux.Router) {
-	router.HandleFunc("/PostData", PostData).Methods("POST")
-	router.HandleFunc("/PutData", PutData).Methods("PUT")
-	router.HandleFunc("/GetData", GetData).Methods("GET")
-	router.HandleFunc("/DeleteData", DeleteData).Methods("DELETE")
+// Define constant route variables
+const (
+	PostDataRoute   = "/PostData"
+	PutDataRoute    = "/PutData"
+	GetDataRoute    = "/GetData"
+	DeleteDataRoute = "/DeleteData"
+)
+
+// Data structure for containing the route handler function and the request method
+type Route struct {
+	handlerFunction http.HandlerFunc
+	method          string
 }
 
+// Define routes to be setup
+var routeMap = map[string]Route{
+	PostDataRoute:   {PostData, "POST"},
+	PutDataRoute:    {PutData, "PUT"},
+	GetDataRoute:    {GetData, "GET"},
+	DeleteDataRoute: {DeleteData, "DELETE"},
+}
+
+func SetupUserRoutes(router *mux.Router) {
+	// Loop through the routes map and register the routes
+	for path, route := range routeMap {
+		router.HandleFunc(path, route.handlerFunction).Methods(route.method)
+	}
+}
+
+// Decodes a new JSON-encoded user and
+// calls goHandlers.PostDataHandler to insert
+// the new user into the JSON database.
 func PostData(w http.ResponseWriter, r *http.Request) {
 	var userToPost goHandlers.User
 
@@ -32,6 +57,9 @@ func PostData(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// Decodes an existing JSON-encoded user and
+// calls goHandlers.PutDataHandler to update
+// the user in the JSON database.
 func PutData(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("PutData handler called")
 
@@ -60,6 +88,8 @@ func PutData(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
+// Calls goHandlers.GetDataHandler to get the data
+// from the JSON database, and sends it to the client
 func GetData(w http.ResponseWriter, r *http.Request) {
 	users, err := goHandlers.GetDataHandler()
 
@@ -77,6 +107,9 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// Decodes an existing JSON-encoded user and
+// calls goHandlers.DeleteDataHandler to delete
+// the user from the JSON database.
 func DeleteData(w http.ResponseWriter, r *http.Request) {
 	var userToDelete goHandlers.User
 

@@ -12,9 +12,6 @@ const DATA_FILE_SEQUENTIAL = "../database/dataSequential.json"
 
 // Loop through the sequential data array and
 // add all users that do not match the ID.
-// There is definitely a better way to 'remove'
-// something instead of doing it this way, but
-// it's good enough for now...!
 func erase(users []User, userToDelete User) []User {
 	newUserList := []User{}
 
@@ -77,10 +74,6 @@ func randInt64Range(min int, max int) uint64 {
 	return uint64(min) + uint64(rand.Int63n(int64(max-min+1)))
 }
 
-// I originally wrote this function in Lua,
-// then translated it to GDScript to use in my games.
-// To my understanding, these numbers are universal,
-// so these ranges should still match the commented ranges.
 var alphanumericRanges = [][2]int{
 	{48, 57},  // 0 - 9
 	{65, 90},  // A - Z
@@ -154,6 +147,8 @@ func randomString(_stringLength ...int) string {
 	return returnString
 }
 
+// Reads the JSON database files and gives the new User instance a unique ID.
+// Adds the User to the user list and writes the data back to the JSON database files.
 func PostDataHandler(userToPost User) error {
 	currentFileContent, _ := os.ReadFile(DATA_FILE)
 	currentFileContentSequential, _ := os.ReadFile(DATA_FILE_SEQUENTIAL)
@@ -199,6 +194,8 @@ func PostDataHandler(userToPost User) error {
 	return nil
 }
 
+// Reads the JSON database files and updates the existing User instance.
+// Writes the data back to the JSON database files.
 func PutDataHandler(userToPut User) error {
 	currentFileContent, err := os.ReadFile(DATA_FILE)
 
@@ -254,6 +251,9 @@ func PutDataHandler(userToPut User) error {
 	return nil
 }
 
+// Returns the sequential JSON database file.
+// The sequential database file is used to display
+// the users in the order that they were created.
 func GetDataHandler() ([]User, error) {
 	fileContent, err := os.ReadFile(DATA_FILE_SEQUENTIAL)
 
@@ -270,6 +270,8 @@ func GetDataHandler() ([]User, error) {
 	return users, nil
 }
 
+// Reads the JSON database files and deletes the User instance.
+// Writes the data back to the JSON database files.
 func DeleteDataHandler(userToDelete User) error {
 	currentFileContent, err := os.ReadFile(DATA_FILE)
 
