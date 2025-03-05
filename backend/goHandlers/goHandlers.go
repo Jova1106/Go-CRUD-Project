@@ -91,7 +91,7 @@ func randomString(_stringLength ...int) string {
 		stringLength = 64 // Default value
 	} else {
 		// Assign the passed value, after clamping it
-		stringLength = clamp(_stringLength[0], 0, 64)
+		stringLength = clamp(_stringLength[0], 8, 64)
 	}
 	currentFileContent, _ := os.ReadFile(DATA_FILE)
 	var newUserMap map[string]User
