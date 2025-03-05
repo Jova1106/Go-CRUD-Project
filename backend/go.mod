@@ -7,4 +7,4 @@ require (
 	github.com/gorilla/mux v1.8.1
 )
 
-require github.com/felixge/httpsnoop v1.0.4
+require github.com/felixge/httpsnoop v1.0.4 // indirect
