@@ -37,7 +37,7 @@ func SetupUserRoutes(router *mux.Router) {
 	}
 }
 
-// Decodes a new JSON-encoded user and
+// Decodes a new JSON-encoded User instance and
 // calls goHandlers.PostDataHandler to insert
 // the new user into the JSON database.
 func PostData(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +57,7 @@ func PostData(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// Decodes an existing JSON-encoded user and
+// Decodes an existing JSON-encoded User instance and
 // calls goHandlers.PutDataHandler to update
 // the user in the JSON database.
 func PutData(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +107,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// Decodes an existing JSON-encoded user and
+// Decodes an existing JSON-encoded User instance and
 // calls goHandlers.DeleteDataHandler to delete
 // the user from the JSON database.
 func DeleteData(w http.ResponseWriter, r *http.Request) {
