@@ -2,6 +2,7 @@ package goHandlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -47,30 +48,70 @@ type User struct {
 }
 
 // Return the smallest of 2 ints
-func min(a, b int) int {
-	if a < b {
-		return a
+func min(a, b any) (int, error) {
+	var err error
+
+	aInt, aIsInt := a.(int)
+
+	if !aIsInt {
+		return 0, errors.New("min: 'a' parameter is not an int")
 	}
 
-	return b
+	bInt, bIsInt := b.(int)
+
+	if !bIsInt {
+		return 0, errors.New("min: 'b' parameter is not an int")
+	}
+
+	if aInt < bInt {
+		return aInt, err
+	}
+
+	return bInt, err
 }
 
 // Return the largest of 2 ints
-func max(a, b int) int {
-	if a > b {
-		return a
+func max(a, b any) (int, error) {
+	var err error
+
+	aInt, aIsInt := a.(int)
+
+	if !aIsInt {
+		return 0, errors.New("max: 'a' parameter is not an int")
 	}
 
-	return b
+	bInt, bIsInt := b.(int)
+
+	if !bIsInt {
+		return 0, errors.New("max: 'b' parameter is not an int")
+	}
+
+	if aInt > bInt {
+		return aInt, err
+	}
+
+	return bInt, err
 }
 
 // Clamp a value between min and max
-func clamp(value int, minValue int, maxValue int) int {
-	return max(min(value, maxValue), minValue)
+func clamp(value, minValue, maxValue int) (int, error) {
+	min, err := min(value, maxValue)
+
+	if err != nil {
+		return 0, errors.New("clamp: min function input is not an int")
+	}
+
+	ret, err := max(min, minValue)
+
+	if err != nil {
+		return 0, errors.New("clamp: max function input is not an int")
+	}
+
+	return ret, err
 }
 
 // Generate a random int between min and max, inclusive
-func randInt64Range(min int, max int) uint64 {
+func randInt64Range(min, max int) uint64 {
 	return uint64(min) + uint64(rand.Int63n(int64(max-min+1)))
 }
 
@@ -82,24 +123,33 @@ var alphanumericRanges = [][2]int{
 
 // Generates a string with the specified amount of random characters.
 // Defaults to 64 characters if no length is provided.
-func randomString(_stringLength ...int) string {
+func randomString(_stringLength ...int) (string, error) {
 	// If alphanumeric is false, certain special characters
 	// like [].!, will be allowed in the string.
 	var alphanumeric = true
-	var stringLength int
+	var (
+		stringLength int
+		err          error
+	)
+
 	if len(_stringLength) == 0 {
 		stringLength = 64 // Default value
 	} else {
 		// Assign the passed value, after clamping it
-		stringLength = clamp(_stringLength[0], 8, 64)
+		stringLength, err = clamp(_stringLength[0], 8, 64)
+
+		if err != nil {
+			return "", errors.New("randomString: '_stringLength' parameter is not an int")
+		}
 	}
+
 	currentFileContent, _ := os.ReadFile(DATA_FILE)
 	var newUserMap map[string]User
 
 	// Deserialize the json file that contains user IDs as keys.
 	// We're doing this so we can validate if a key exists.
-	if err := json.Unmarshal(currentFileContent, &newUserMap); err != nil {
-		return fmt.Sprintf("%v", err)
+	if jsonErr := json.Unmarshal(currentFileContent, &newUserMap); jsonErr != nil {
+		return fmt.Sprintf("%v", jsonErr), err
 	}
 
 	var returnString string
@@ -137,7 +187,7 @@ func randomString(_stringLength ...int) string {
 		return randomString(stringLength)
 	}
 
-	return returnString
+	return returnString, err
 }
 
 // Reads the JSON database files and gives the new User instance a unique ID.
@@ -147,7 +197,7 @@ func PostDataHandler(userToPost User) error {
 	currentFileContentSequential, _ := os.ReadFile(DATA_FILE_SEQUENTIAL)
 	var newUserMap map[string]User
 	var newUsers []User
-	var newUserId = randomString()
+	var newUserId, _ = randomString()
 	userToPost.Id = newUserId
 
 	if err := json.Unmarshal(currentFileContent, &newUserMap); err != nil {
