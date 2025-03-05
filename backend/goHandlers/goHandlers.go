@@ -80,15 +80,8 @@ var alphanumericRanges = [][2]int{
 	{97, 122}, // a - z
 }
 
-// This function repeats '_stringLength' times and generates
-// a random alpnanumeric character that many times.
-//
-// Since Go doesn't allow optional parameters,
-// I chose to use variadic args, and set a default
-// if there are no parameters provided.
-// Only the first parameter is evaluated, so
-// randomString(7, 8, 9) will return a random string
-// with 7 characters.
+// Generates a string with the specified amount of random characters.
+// Defaults to 64 characters if no length is provided.
 func randomString(_stringLength ...int) string {
 	// If alphanumeric is false, certain special characters
 	// like [].!, will be allowed in the string.
