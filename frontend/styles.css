@@ -54,3 +54,38 @@ input {
 	width: 100%;
 	box-sizing: border-box;
 }
+
+#userDiv {
+	background: #b8bfc5;
+	margin: 5px 0;
+	padding: 10px;
+	border-radius: 5px;
+	display: flex;
+}
+
+#nameInput {
+	background: #e9ecef;
+	float: left;
+	margin: 5px 0;
+	padding: 10px;
+	border-radius: 5px;
+	display: flex;
+	flex-grow: 1;
+}
+
+#emailInput {
+	background: #e9ecef;
+	float: left;
+	margin: 5px 0;
+	padding: 10px;
+	border-radius: 5px;
+	display: flex;
+	flex-grow: 1;
+}
+
+#deleteButton {
+	margin-left: 10px;
+	padding: 5px 10px;
+	border-radius: 5px;
+	display: flex;
+}

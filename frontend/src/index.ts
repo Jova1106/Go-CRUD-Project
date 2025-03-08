@@ -91,13 +91,17 @@ async function deleteData(user: User) {
 	}
 }
 
-
 function addUser(user: User, newUser: boolean = false) {
 	const userDiv = document.createElement('div');
 	const nameInput = document.createElement('input');
 	const emailInput = document.createElement('input');
 	const deleteButton = document.createElement('button');
 	const separator = document.createElement('hr')
+	userDiv.id = "userDiv"
+	nameInput.id = "nameInput"
+	emailInput.id = "emailInput"
+	deleteButton.id = "deleteButton"
+	separator.id = "separator"
 	var nameString = `${user.Name}`
 	var emailString = `${user.Email}`
 	const htmlUserList = document.getElementById('userList') as HTMLUListElement;
@@ -109,41 +113,6 @@ function addUser(user: User, newUser: boolean = false) {
 		htmlUserList.removeChild(userDiv);
 		htmlUserList.removeChild(separator);
 		deleteData(user);
-	});
-
-	Object.assign(userDiv.style, {
-		background: "#b8bfc5",
-		margin: "5px 0",
-		padding: "10px",
-		borderRadius: "5px",
-		display: "flex",
-	});
-
-	Object.assign(nameInput.style, {
-		background: "#e9ecef",
-		float: "left",
-		margin: "5px 0",
-		padding: "10px",
-		borderRadius: "5px",
-		display: "flex",
-		flexGrow: 1
-	});
-
-	Object.assign(emailInput.style, {
-		background: "#e9ecef",
-		float: "left",
-		margin: "5px 0",
-		padding: "10px",
-		borderRadius: "5px",
-		display: "flex",
-		flexGrow: 1
-	});
-
-	Object.assign(deleteButton.style, {
-		marginLeft: "10px",
-		padding: "5px 10px",
-		borderRadius: "5px",
-		display: "flex"
 	});
 
 	nameInput.type = 'text'
