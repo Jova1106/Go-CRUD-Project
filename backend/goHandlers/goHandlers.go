@@ -7,8 +7,8 @@ import (
 	"os"
 )
 
-const DATA_FILE = "../database/data.json"
-const DATA_FILE_SEQUENTIAL = "../database/dataSequential.json"
+const DATA_FILE = "database/data.json"
+const DATA_FILE_SEQUENTIAL = "database/dataSequential.json"
 
 // Loop through the sequential data array and
 // add all users that do not match the ID.
@@ -41,9 +41,9 @@ func update(users []User, userToPut User) []User {
 
 // The default user data structure
 type User struct {
-	Id    string `json:id`
-	Name  string `json:name`
-	Email string `json:email`
+	Id    string `"json:id"`
+	Name  string `"json:name"`
+	Email string `"json:email"`
 }
 
 type Number interface {
