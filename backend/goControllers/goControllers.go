@@ -98,13 +98,12 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
 	if err = json.NewEncoder(w).Encode(users); err != nil {
 		http.Error(w, "Error encoding users to JSON", http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 }
 
 // Decodes an existing JSON-encoded User instance and
