@@ -50,3 +50,6 @@ logs
 *.ntvs*
 *.njsproj
 *.sln
+
+# Database Info file
+**/dbinfo.json

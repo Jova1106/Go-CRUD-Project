@@ -3,12 +3,14 @@ package main
 import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"goCrud/database"
 	"goCrud/goControllers"
 	"log"
 	"net/http"
 )
 
 func main() {
+	database.InitializeDatabase()
 	router := mux.NewRouter()
 	goControllers.SetupUserRoutes(router)
 
