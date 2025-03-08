@@ -52,4 +52,4 @@ logs
 *.sln
 
 # Database Info file
-**/dbinfo.json
+**/dbinfo.env
