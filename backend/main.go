@@ -16,8 +16,6 @@ func main() {
 	router := mux.NewRouter()
 	goControllers.SetupUserRoutes(router)
 
-	registration.SendVerificationEmail("jova1106@gmail.com", mathLib.RandomString())
-
 	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
