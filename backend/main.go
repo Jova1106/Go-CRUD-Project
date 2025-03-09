@@ -3,8 +3,6 @@ package main
 import (
 	"JovaCentral/database"
 	"JovaCentral/goControllers"
-	"JovaCentral/mathLib"
-	"JovaCentral/registration"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
