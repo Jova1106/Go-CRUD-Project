@@ -1,14 +1,14 @@
 package goHandlers
 
 import (
+	"JovaCentral/database"
+	"JovaCentral/mathLib"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"os"
 )
 
-const DATA_FILE = "database/data.json"
-const DATA_FILE_SEQUENTIAL = "database/dataSequential.json"
+type User = database.User
 
 // Loop through the sequential data array and
 // add all users that do not match the ID.
@@ -39,123 +39,14 @@ func update(users []User, userToPut User) []User {
 	return users
 }
 
-// The default user data structure
-type User struct {
-	Id    string `"json:id"`
-	Name  string `"json:name"`
-	Email string `"json:email"`
-}
-
-type Number interface {
-	int | int8 | int16 | int32 | int64 |
-		uint | uint8 | uint16 | uint32 | uint64 |
-		float32 | float64
-}
-
-// Return the smallest of 2 ints
-func min[T Number](a, b T) T {
-	if a < b {
-		return a
-	}
-
-	return b
-}
-
-// Return the largest of 2 ints
-func max[T Number](a, b T) T {
-	if a > b {
-		return a
-	}
-
-	return b
-}
-
-// Clamp a value between min and max
-func clamp[T Number](value, minValue, maxValue T) T {
-	return max(min(value, maxValue), minValue)
-}
-
-// Generate a random int between min and max, inclusive
-func randNumRange[T Number](min, max T) T {
-	return T(uint64(min) + uint64(rand.Int63n(int64(max-min+1))))
-}
-
-var alphanumericRanges = [][2]int{
-	{48, 57},  // 0 - 9
-	{65, 90},  // A - Z
-	{97, 122}, // a - z
-}
-
-// Generates a string with the specified amount of random characters.
-// Defaults to 64 characters if no length is provided.
-func randomString(_stringLength ...uint8) string {
-	// If alphanumeric is false, certain special characters
-	// like [].!, will be allowed in the string.
-	var alphanumeric = true
-	var stringLength uint8
-
-	if len(_stringLength) == 0 {
-		stringLength = 64 // Default value
-	} else {
-		// Assign the passed value, after clamping it
-		stringLength = clamp(_stringLength[0], 8, 64)
-	}
-
-	currentFileContent, _ := os.ReadFile(DATA_FILE)
-	var newUserMap map[string]User
-
-	// Deserialize the json file that contains user IDs as keys.
-	// We're doing this so we can validate if a key exists.
-	if jsonErr := json.Unmarshal(currentFileContent, &newUserMap); jsonErr != nil {
-		return fmt.Sprintf("%v", jsonErr)
-	}
-
-	var returnString string
-	var tempStringArray []rune
-
-	if alphanumeric {
-		for i := 0; i < int(stringLength); i++ {
-			// Pick a number between 0-2 and select the set of characters
-			// from the 'alphanumericRanges' array.
-			characterRange := alphanumericRanges[rand.Intn(3)]
-			// Add the random character to the temporary array
-			tempStringArray = append(tempStringArray, rune(randNumRange(characterRange[0], characterRange[1])))
-		}
-	} else {
-		for i := 0; i < int(stringLength); i++ {
-			// Set the range to be between 32 and 126 in the ASCII table,
-			// Allowing special ASCII characters.
-			//
-			// 32 - 47	 : Space and basic punctuation characters, 	EXAMPLE: ! " # *
-			// 58 - 64	 : Additional punctuation and symbols, 		EXAMPLE: : ; < =
-			// 91 - 96	 : More punctuation and special symbols, 	EXAMPLE: [ ] \ ^
-			// 123 - 126 : Brackets, pipe, and tilde, 				EXAMPLE: { } | ~
-			//
-			// Since rand.Intn(94) returns 93 (n - 1),
-			// we need to add 33 to get 126.
-			tempStringArray = append(tempStringArray, rune(rand.Intn(94)+33))
-		}
-	}
-
-	returnString = string(tempStringArray)
-
-	// If the ID already exists, recursively call this function until we don't have one.
-	// Assuming we have 64 characters, an ID conflict is... unlikely, to say the least.
-	if _, exists := newUserMap[returnString]; exists {
-		return randomString(stringLength)
-	}
-
-	return returnString
-}
-
 // Reads the JSON database files and gives the new User instance a unique ID.
 // Adds the User to the user list and writes the data back to the JSON database files.
 func PostDataHandler(userToPost User) error {
-	currentFileContent, _ := os.ReadFile(DATA_FILE)
-	currentFileContentSequential, _ := os.ReadFile(DATA_FILE_SEQUENTIAL)
+	currentFileContent, _ := os.ReadFile(database.DATA_FILE)
+	currentFileContentSequential, _ := os.ReadFile(database.DATA_FILE_SEQUENTIAL)
 	var newUserMap map[string]User
 	var newUsers []User
-	var newUserId = randomString()
+	var newUserId = mathLib.RandomString()
 	userToPost.Id = newUserId
 
 	if err := json.Unmarshal(currentFileContent, &newUserMap); err != nil {
@@ -169,9 +60,9 @@ func PostDataHandler(userToPost User) error {
 		return err
 	}
 
-	os.Remove(DATA_FILE)
+	os.Remove(database.DATA_FILE)
 
-	if err = os.WriteFile(DATA_FILE, fileContent, 0644); err != nil {
+	if err = os.WriteFile(database.DATA_FILE, fileContent, 0644); err != nil {
 		return err
 	}
 
@@ -186,9 +77,9 @@ func PostDataHandler(userToPost User) error {
 		return err
 	}
 
-	os.Remove(DATA_FILE_SEQUENTIAL)
+	os.Remove(database.DATA_FILE_SEQUENTIAL)
 
-	if err = os.WriteFile(DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
+	if err = os.WriteFile(database.DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
 		return err
 	}
 
@@ -198,13 +89,13 @@ func PostDataHandler(userToPost User) error {
 // Reads the JSON database files and updates the existing User instance.
 // Writes the data back to the JSON database files.
 func PutDataHandler(userToPut User) error {
-	currentFileContent, err := os.ReadFile(DATA_FILE)
+	currentFileContent, err := os.ReadFile(database.DATA_FILE)
 
 	if err != nil {
 		return fmt.Errorf("failed to read data file: %w", err)
 	}
 
-	currentFileContentSequential, err := os.ReadFile(DATA_FILE_SEQUENTIAL)
+	currentFileContentSequential, err := os.ReadFile(database.DATA_FILE_SEQUENTIAL)
 
 	if err != nil {
 		return fmt.Errorf("failed to read sequential data file: %w", err)
@@ -232,7 +123,7 @@ func PutDataHandler(userToPut User) error {
 		return fmt.Errorf("failed to serialize updated user data: %w", err)
 	}
 
-	if err := os.WriteFile(DATA_FILE, fileContent, 0644); err != nil {
+	if err := os.WriteFile(database.DATA_FILE, fileContent, 0644); err != nil {
 		return fmt.Errorf("failed to write updated user data: %w", err)
 	}
 
@@ -243,7 +134,7 @@ func PutDataHandler(userToPut User) error {
 		return fmt.Errorf("failed to serialize updated sequential data: %w", err)
 	}
 
-	if err := os.WriteFile(DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
+	if err := os.WriteFile(database.DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
 		return fmt.Errorf("failed to write updated sequential user data: %w", err)
 	}
 
@@ -256,7 +147,7 @@ func PutDataHandler(userToPut User) error {
 // The sequential database file is used to display
 // the users in the order that they were created.
 func GetDataHandler() ([]User, error) {
-	fileContent, err := os.ReadFile(DATA_FILE_SEQUENTIAL)
+	fileContent, err := os.ReadFile(database.DATA_FILE_SEQUENTIAL)
 
 	if err != nil {
 		return nil, err
@@ -274,23 +165,23 @@ func GetDataHandler() ([]User, error) {
 // Reads the JSON database files and deletes the User instance.
 // Writes the data back to the JSON database files.
 func DeleteDataHandler(userToDelete User) error {
-	currentFileContent, err := os.ReadFile(DATA_FILE)
+	currentFileContent, err := os.ReadFile(database.DATA_FILE)
 
 	if err != nil {
-		return fmt.Errorf("failed to read %s: %v", DATA_FILE, err)
+		return fmt.Errorf("failed to read %s: %v", database.DATA_FILE, err)
 	}
 
-	currentFileContentSequential, err := os.ReadFile(DATA_FILE_SEQUENTIAL)
+	currentFileContentSequential, err := os.ReadFile(database.DATA_FILE_SEQUENTIAL)
 
 	if err != nil {
-		return fmt.Errorf("failed to read %s: %v", DATA_FILE_SEQUENTIAL, err)
+		return fmt.Errorf("failed to read %s: %v", database.DATA_FILE_SEQUENTIAL, err)
 	}
 
 	var newUserMap map[string]User
 	var newUsers []User
 
 	if err := json.Unmarshal(currentFileContent, &newUserMap); err != nil {
-		return fmt.Errorf("failed to unmarshal %s: %v", DATA_FILE, err)
+		return fmt.Errorf("failed to unmarshal %s: %v", database.DATA_FILE, err)
 	}
 
 	delete(newUserMap, userToDelete.Id)
@@ -300,12 +191,12 @@ func DeleteDataHandler(userToDelete User) error {
 		return fmt.Errorf("failed to marshal updated user map: %v", err)
 	}
 
-	if err := os.WriteFile(DATA_FILE, fileContent, 0644); err != nil {
-		return fmt.Errorf("failed to write to %s: %v", DATA_FILE, err)
+	if err := os.WriteFile(database.DATA_FILE, fileContent, 0644); err != nil {
+		return fmt.Errorf("failed to write to %s: %v", database.DATA_FILE, err)
 	}
 
 	if err := json.Unmarshal(currentFileContentSequential, &newUsers); err != nil {
-		return fmt.Errorf("failed to unmarshal %s: %v", DATA_FILE_SEQUENTIAL, err)
+		return fmt.Errorf("failed to unmarshal %s: %v", database.DATA_FILE_SEQUENTIAL, err)
 	}
 
 	newUsers = erase(newUsers, userToDelete)
@@ -315,8 +206,8 @@ func DeleteDataHandler(userToDelete User) error {
 		return fmt.Errorf("failed to marshal updated sequential user list: %v", err)
 	}
 
-	if err := os.WriteFile(DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
-		return fmt.Errorf("failed to write to %s: %v", DATA_FILE_SEQUENTIAL, err)
+	if err := os.WriteFile(database.DATA_FILE_SEQUENTIAL, fileContentSequential, 0644); err != nil {
+		return fmt.Errorf("failed to write to %s: %v", database.DATA_FILE_SEQUENTIAL, err)
 	}
 
 	return nil

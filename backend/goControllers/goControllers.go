@@ -1,10 +1,10 @@
 package goControllers
 
 import (
+	"JovaCentral/goHandlers"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"goCrud/goHandlers"
 	"net/http"
 )
 

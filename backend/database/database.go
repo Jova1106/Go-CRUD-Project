@@ -7,9 +7,18 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const DATA_FILE = "database/data.json"
+const DATA_FILE_SEQUENTIAL = "database/dataSequential.json"
 const DB_INFO_FILE = "database/dbinfo.json"
 
 var db *sql.DB
+
+// The default user data structure
+type User struct {
+	Id    string `json:id`
+	Name  string `json:name`
+	Email string `json:email`
+}
 
 // InitializeDatabase
 //
@@ -37,5 +46,5 @@ func InitializeDatabase() {
 		return
 	}
 
-	fmt.Printf("Database initialized successfully!\nLogged in as user '%s.'\n", USERNAME)
+	fmt.Printf("Database initialized successfully!\nLogged in as user '%s'.\n", USERNAME)
 }
