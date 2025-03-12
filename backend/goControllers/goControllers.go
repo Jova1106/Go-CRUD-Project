@@ -53,8 +53,12 @@ func PostData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(userToPost)
+
+	jsonResponse, _ := json.Marshal(userToPost)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.Write(jsonResponse)
 }
 
 // Decodes an existing JSON-encoded User instance and
@@ -122,7 +126,6 @@ func DeleteData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(`{"message": "User deleted successfully"}`))
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "User deleted successfully"}`))
 }

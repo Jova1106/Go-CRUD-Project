@@ -42,8 +42,18 @@ func update(users []User, userToPut User) []User {
 // Reads the JSON database files and gives the new User instance a unique ID.
 // Adds the User to the user list and writes the data back to the JSON database files.
 func PostDataHandler(userToPost User) error {
-	currentFileContent, _ := os.ReadFile(database.DATA_FILE)
-	currentFileContentSequential, _ := os.ReadFile(database.DATA_FILE_SEQUENTIAL)
+	currentFileContent, err := os.ReadFile(database.DATA_FILE)
+
+	if err != nil {
+		return err
+	}
+
+	currentFileContentSequential, err := os.ReadFile(database.DATA_FILE_SEQUENTIAL)
+
+	if err != nil {
+		return err
+	}
+
 	var newUserMap map[string]User
 	var newUsers []User
 	var newUserId = mathLib.RandomString()
