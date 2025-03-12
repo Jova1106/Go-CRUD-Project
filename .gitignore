@@ -35,6 +35,7 @@ logs
 .env
 .env.*
 !/.env.example
+**/*.env
 
 # Editor and IDE files
 .idea
@@ -43,6 +44,3 @@ logs
 *.ntvs*
 *.njsproj
 *.sln
-
-# Database Info file
-**/*.env
