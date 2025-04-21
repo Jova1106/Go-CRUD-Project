@@ -10,13 +10,27 @@ import (
 	"os"
 )
 
-type Number interface {
-	int | int8 | int16 | int32 | int64 |
-		uint | uint8 | uint16 | uint32 | uint64 |
-		float32 | float64
+type SignedInt interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64
 }
 
-// Return the smallest of 2 ints
+type UnsignedInt interface {
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+type Int interface {
+	SignedInt | UnsignedInt
+}
+
+type Float interface {
+	~float32 | ~float64
+}
+
+type Number interface {
+	Int | Float
+}
+
+// Return the smallest of 2 numbers
 func Min[T Number](a, b T) T {
 	if a < b {
 		return a
@@ -25,7 +39,7 @@ func Min[T Number](a, b T) T {
 	return b
 }
 
-// Return the largest of 2 ints
+// Return the largest of 2 numbers
 func Max[T Number](a, b T) T {
 	if a > b {
 		return a
